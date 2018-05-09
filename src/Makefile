@@ -23,13 +23,11 @@ run : $(PROG)
 
 profile :
 	make clean
-	make EXTRACFLAGS=-fprofile-instr-generate all
+	make EXTRACFLAGS=-fprofile-generate all
 	./$(PROG) bench
-	llvm-profdata merge -output=default.profdata *.profraw
-	rm *.profraw
 	make clean
-	make EXTRACFLAGS=-fprofile-instr-use=default.profdata all
-	rm *.profdata
+	make EXTRACFLAGS=-fprofile-use all
+	rm *.gcda
 
 tidy : $(SRC)
 	clang-tidy $^ -checks='modernize-* bugprone-* clang-analyzer-* llvm-* performance-* readability-* hicpp-*' -- -std=c++17

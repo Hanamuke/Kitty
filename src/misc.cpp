@@ -31,14 +31,13 @@ uint64_t perft_search(Position &pos, Depth depth) {
   bool hit;
   uint64_t nodes = 0;
   PerftEntry *pe = hash.probe(pos.get_key(), hit);
-  if (hit && pe->depth == depth) {
+  if (hit && pe->depth == depth)
     return pe->perft;
-  }
-  // if (depth == 0)
-  //  return 1;
+
   moves[depth].set_pos(&pos);
   if (depth == 1)
     return moves[depth].size();
+
   for (ValueMove m : moves[depth]) {
     pos.do_move(m);
     nodes += perft_search(pos, Depth(depth - 1));
@@ -84,7 +83,7 @@ void perft() {
   auto t0 = std::chrono::system_clock::now();
   uint64_t total_nodes = 0;
   hash.resize(16);
-  for (size_t i = 0; i < 1; i++) {
+  for (size_t i = 0; i < NB_POSITIONS; i++) {
     std::cout << Sync::lock << "Position " << i + 1 << '/' << NB_POSITIONS
               << '\n'
               << Sync::unlock;

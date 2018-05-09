@@ -17,7 +17,6 @@ public:
     pos = p;
     currentMove = moves;
     lastMove = pos->generate_moves(moves);
-    std::shuffle(begin(), end(), gen);
   }
 
   Move next_move() {
