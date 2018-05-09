@@ -3,7 +3,6 @@
 #include "misc.hpp"
 #include "position.hpp"
 #include "types.hpp"
-#include <algorithm>
 
 class Moves {
 public:

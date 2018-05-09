@@ -5,43 +5,43 @@ OptionManager Options;
 void thread_resize();
 
 std::ostream &operator<<(std::ostream &os, OptionManager const &om) {
-  for (const auto &it : om.optionsMap)
-    os << "option name " << it.first << ' ' << it.second;
+  for (const auto &option : om.optionsMap)
+    os << "option name " << option.first << ' ' << option.second;
   return os;
 }
 
 std::ostream &operator<<(std::ostream &os, Option const &o) {
   os << "type " << o.type;
-  if (strcmp(o.type, "button"))
+  if (o.type != "button")
     os << " default " << o.default_value;
-  if (!strcmp(o.type, "spin"))
+  if (o.type == "spin")
     os << " min " << o.min << " max " << o.max;
-  else if (!strcmp(o.type, "combo"))
-    for (const char *s : o.combo_values)
+  else if (o.type == "combo")
+    for (std::string const &s : o.combo_values)
       os << " var " << s;
   os << '\n';
   return os;
 }
 
-bool Option::setValue(const char *s) {
+bool Option::setValue(std::string const &s) {
   assert(type != "button");
-  if (!strcmp(type, "string")) {
+  if (type == "string") {
     str_value = s;
     onChange();
     return true;
-  } else if (!strcmp(type, "combo")) {
+  } else if (type == "combo") {
     if (combo_values.count(s)) {
       str_value = s;
       onChange();
       return true;
     } else
       return false;
-  } else if (!strcmp(type, "check")) {
-    if (!strcmp(s, "true")) {
+  } else if (type == "check") {
+    if (s == "true") {
       int_value = true;
       onChange();
       return true;
-    } else if (!strcmp(s, "false")) {
+    } else if (s == "false") {
       int_value = false;
       onChange();
       return true;
@@ -59,7 +59,7 @@ bool Option::setValue(const char *s) {
 
 bool Option::setValue(int v) {
   assert(type == "spin" || type == "check");
-  if (!strcmp(type, "check") || (v >= min && v <= max)) {
+  if (type == "check" || (v >= min && v <= max)) {
     int_value = v;
     onChange();
     return true;
@@ -86,17 +86,18 @@ Option::Option(bool dflt, Callback c)
     : type("check"), default_value(dflt ? "true" : "false"), int_value(dflt),
       onChange(c) {}
 
-Option::Option(std::initializer_list<const char *> list, Callback c)
-    : type("combo"), default_value(list.size() > 0 ? *list.begin() : ""),
+Option::Option(std::initializer_list<const std::string> values_list, Callback c)
+    : type("combo"),
+      default_value(values_list.size() > 0 ? *values_list.begin() : ""),
       onChange(c) {
-  str_value = (const char *)default_value;
-  assert(list.size() > 0);
-  for (const char *s : list) {
+  str_value = default_value;
+  assert(values_list.size() > 0);
+  for (std::string const &s : values_list) {
     combo_values.emplace(s);
   }
 }
 
-Option::Option(const char *dflt, Callback c)
+Option::Option(std::string const &dflt, Callback c)
     : type("string"), default_value(dflt), str_value(dflt), onChange(c) {}
 
 void no_callback() {}

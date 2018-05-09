@@ -2,6 +2,7 @@
 #include "moves.hpp"
 #include "threads.hpp"
 #include "types.hpp"
+#include <algorithm>
 #include <iostream>
 
 void Thread::search() {

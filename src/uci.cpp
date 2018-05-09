@@ -55,9 +55,10 @@ int main(int argc, char **argv) {
         Options["debug"].setValue(true);
       else
         Options["debug"].setValue(false);
-    } else if (token == "setoption")
+    } else if (token == "setoption") {
+      Threads.stop_search();
       UCI::set_option(is);
-    else if (token == "stop")
+    } else if (token == "stop")
       Threads.stop_search();
     else if (token == "ponderhit")
       ; // TODO
