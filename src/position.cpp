@@ -4,26 +4,33 @@
 #include <cstring>
 #include <sstream>
 
-Position::Position() {
+Position::Position()
+{
   state = stateStack;
   set_position(startfen);
 }
 
-std::string Position::to_fen() const {
+std::string Position::to_fen() const
+{
   std::string ret;
   int empty_cnt;
-  for (Rank r = RANK_8; r >= RANK_1; --r) {
+  for (Rank r = RANK_8; r >= RANK_1; --r)
+  {
     empty_cnt = 0;
-    for (File f = FILE_A; f <= FILE_H; ++f) {
+    for (File f = FILE_A; f <= FILE_H; ++f)
+    {
       Square sq = make_square(f, r);
       Piece p = piece(sq);
-      if (p) {
-        if (empty_cnt) {
+      if (p)
+      {
+        if (empty_cnt)
+        {
           ret += std::to_string(empty_cnt);
           empty_cnt = 0;
         }
         ret += pieceStr[p];
-      } else
+      }
+      else
         ++empty_cnt;
     }
     if (empty_cnt)
@@ -46,10 +53,12 @@ std::string Position::to_fen() const {
   if (cstl & B_OOO)
     ret += 'q';
   ret += ' ';
-  if (state->epSquare != NO_SQUARE) {
+  if (state->epSquare != NO_SQUARE)
+  {
     ret += (char)(file_of(state->epSquare) + 'a');
     ret += (char)(rank_of(state->epSquare) + '1');
-  } else
+  }
+  else
     ret += '-';
   ret += ' ';
   ret += std::to_string(state->rule50);
@@ -58,17 +67,20 @@ std::string Position::to_fen() const {
   return ret;
 }
 // assumes that the fen is somewhat correct
-void Position::set_position(std::string fen) {
+void Position::set_position(std::string fen)
+{
   reset();
   fen += " 0 1"; // default move numbers in case it is missing
   std::istringstream is(fen);
   char token;
   Square sq = SQ_A8;
-  while (sq >= SQ_A1) {
+  while (sq >= SQ_A1)
+  {
     is >> std::noskipws >> token;
     if (token == '/' || token == ' ')
       sq += 2 * SOUTH;
-    else {
+    else
+    {
       size_t pos(pieceStr.find(token));
       if (pos != std::string::npos)
         put_piece(sq, Piece(pos));
@@ -88,12 +100,16 @@ void Position::set_position(std::string fen) {
     for (char token : str)
       set_cs_right(token);
   is >> str;
-  if (str == "-") {
+  if (str == "-")
+  {
     state->epSquare = NO_SQUARE;
     key ^= zobrist_ep[NO_SQUARE];
-  } else {
+  }
+  else
+  {
     Square sq = make_square(str);
-    if (pawnPseudoAttack[sq][!stm] & pieces(PAWN, stm)) {
+    if (pawnPseudoAttack[sq][!stm] & pieces(PAWN, stm))
+    {
       state->epSquare = sq;
       key ^= zobrist_ep[sq];
     }
@@ -106,7 +122,8 @@ void Position::set_position(std::string fen) {
   assert(is_valid());
 }
 
-void Position::do_move(std::string input) {
+void Position::do_move(std::string input)
+{
   if (state - stateStack >= MAX_PLY - 1)
     rebase_stack();
   Move m;
@@ -118,18 +135,22 @@ void Position::do_move(std::string input) {
     m = make_move<PROMOTION>(from, to, PieceType(pieceTypeStr.find(input[0])));
   else if (piece_type_of(piece(from)) == PAWN && to == state->epSquare)
     m = make_move<EN_PASSANT>(from, to);
-  else if (piece_type_of(piece(from)) == KING) {
+  else if (piece_type_of(piece(from)) == KING)
+  {
     if (distance(file_of(from), file_of(to)) > 1)
       m = cstl_move[(stm << 1) | (file_of(from) > file_of(to))];
     else
       m = make_move<NORMAL>(from, to);
-  } else {
+  }
+  else
+  {
     m = make_move<NORMAL>(from, to);
   }
   do_move(m);
 }
 
-void Position::do_move(Move m) {
+void Position::do_move(Move m)
+{
   Square from = get_from(m), to = get_to(m);
   MoveType mt = get_move_type(m);
   do_null_move();
@@ -138,7 +159,8 @@ void Position::do_move(Move m) {
   state->move = m;
   key ^= zobrist_castle[state->castlingRights];
   state->castlingRights &= ~castlingBySquare[from];
-  if (piece(to)) {
+  if (piece(to))
+  {
     state->rule50 = 0;
     state->castlingRights &= ~castlingBySquare[to];
     remove_piece(to);
@@ -149,7 +171,8 @@ void Position::do_move(Move m) {
   else if (mt == CASTLING)
     move_piece(castlingRookMove[get_castling(m)][0],
                castlingRookMove[get_castling(m)][1]);
-  else if (mt == PROMOTION) {
+  else if (mt == PROMOTION)
+  {
     remove_piece(from);
     put_piece(to, make_piece(!stm, get_prom(m)));
     state->checkers = attacks_to(our_king()) & pieces(!stm);
@@ -157,10 +180,12 @@ void Position::do_move(Move m) {
     return;
   }
   move_piece(from, to);
-  if (piece_type_of(piece(to)) == PAWN) {
+  if (piece_type_of(piece(to)) == PAWN)
+  {
     state->rule50 = 0;
     if (distance(rank_of(from), rank_of(to)) >> 1 &&
-        pawnPseudoAttack[from + down(stm)][!stm] & pieces(PAWN, stm)) {
+        pawnPseudoAttack[from + down(stm)][!stm] & pieces(PAWN, stm))
+    {
       key ^= zobrist_ep[state->epSquare];
       state->epSquare = from + down(stm);
       key ^= zobrist_ep[from + down(stm)];
@@ -171,15 +196,18 @@ void Position::do_move(Move m) {
   assert(is_valid());
 }
 
-void Position::undo_move() {
+void Position::undo_move()
+{
   Move m = state->move;
   Square from = get_from(m), to = get_to(m);
   assert(pieces() & to);
   MoveType mt = get_move_type(m);
-  if (mt == PROMOTION) {
+  if (mt == PROMOTION)
+  {
     remove_piece(to);
     put_piece(from, make_piece(!stm, PAWN));
-  } else
+  }
+  else
     move_piece(to, from);
   if (state->capturedPiece)
     put_piece(to, state->capturedPiece);
@@ -192,7 +220,8 @@ void Position::undo_move() {
   assert(is_valid());
 }
 
-inline void Position::do_null_move() {
+inline void Position::do_null_move()
+{
   key ^= zobrist_ep[state->epSquare];
   next_state();
   ++ply;
@@ -201,7 +230,8 @@ inline void Position::do_null_move() {
   key ^= zobrist_ep[state->epSquare];
 }
 
-inline void Position::undo_null_move() {
+inline void Position::undo_null_move()
+{
   key ^= zobrist_ep[state->epSquare];
   restore_state();
   --ply;
@@ -210,10 +240,12 @@ inline void Position::undo_null_move() {
   key ^= zobrist_ep[state->epSquare];
 }
 
-std::ostream &operator<<(std::ostream &os, Position const &pos) {
+std::ostream &operator<<(std::ostream &os, Position const &pos)
+{
   os << pos.to_fen() << '\n';
   os << "+---+---+---+---+---+---+---+---+\n";
-  for (Rank r = RANK_8; r >= RANK_1; --r) {
+  for (Rank r = RANK_8; r >= RANK_1; --r)
+  {
     for (File f = FILE_A; f <= FILE_H; ++f)
       os << "| " << pos.piece(make_square(f, r)) << " ";
     os << "|\n+---+---+---+---+---+---+---+---+\n";
@@ -227,7 +259,8 @@ std::ostream &operator<<(std::ostream &os, Position const &pos) {
   return os << "Castling right : " << pos.state->castlingRights;
 }
 
-void Position::reset() {
+void Position::reset()
+{
   std::memset(bbByPieceType, 0, NB_PIECE_TYPE * sizeof(Bitboard));
   std::memset(bbByColor, 0, NB_COLOR * sizeof(Bitboard));
   std::memset(pieceBySquare, NO_PIECE, NB_SQUARE * sizeof(Piece));
@@ -240,21 +273,24 @@ void Position::reset() {
   state->move = NO_MOVE;
 }
 
-void Position::next_state() {
+void Position::next_state()
+{
   assert(state + 1 < (StateInfo *)stateStack + MAX_PLY);
   memcpy(state + 1, state, offsetof(StateInfo, epSquare));
   (++state)->epSquare = NO_SQUARE;
   ++(state->rule50);
 }
 
-inline void Position::restore_state() {
+inline void Position::restore_state()
+{
   assert(state > stateStack);
   key ^= zobrist_castle[state->castlingRights];
   --state;
   key ^= zobrist_castle[state->castlingRights];
 }
 
-void Position::put_piece(Square sq, Piece p) {
+void Position::put_piece(Square sq, Piece p)
+{
   assert(!piece(sq));
   Bitboard bbSq = bb_of(sq);
   bbByPieceType[piece_type_of(p)] ^= bbSq;
@@ -266,7 +302,8 @@ void Position::put_piece(Square sq, Piece p) {
   pieceList[p][nbPiece[p]++] = sq;
 }
 
-void Position::remove_piece(Square sq) {
+void Position::remove_piece(Square sq)
+{
   assert(piece(sq));
   assert(piece_type_of(piece(sq)) != KING);
   Piece p = pieceBySquare[sq];
@@ -284,7 +321,8 @@ void Position::remove_piece(Square sq) {
   index[otherSquare] = index[sq];
   pieceList[p][index[sq]] = otherSquare;
 }
-void Position::move_piece(Square from, Square to) {
+void Position::move_piece(Square from, Square to)
+{
   Piece p = pieceBySquare[from];
   Bitboard move_bb = bb_of(from) | bb_of(to);
   bbByPieceType[piece_type_of(p)] ^= move_bb;
@@ -298,9 +336,11 @@ void Position::move_piece(Square from, Square to) {
   pieceList[p][index[from]] = to;
 }
 
-void Position::set_cs_right(char token) {
+void Position::set_cs_right(char token)
+{
   key ^= zobrist_castle[state->castlingRights];
-  switch (token) {
+  switch (token)
+  {
   case 'K':
     state->castlingRights |= W_OO;
     break;
@@ -319,18 +359,22 @@ void Position::set_cs_right(char token) {
   key ^= zobrist_castle[state->castlingRights];
 }
 
-void Position::compute_pins() {
-  for (Color c : {WHITE, BLACK}) {
+void Position::compute_pins()
+{
+  for (Color c : {WHITE, BLACK})
+  {
     state->pinners[c] = 0;
     state->blockers[c] = 0;
     Square ksq = pieceList[make_piece(c, KING)][0];
     Bitboard snipers = ((bishopPseudoAttacks[ksq] & pieces(BISHOP, QUEEN)) |
                         (rookPseudoAttacks[ksq] & pieces(ROOK, QUEEN))) &
                        pieces(!c) & ~state->checkers;
-    while (snipers) {
+    while (snipers)
+    {
       Square ssq = pop_lsb(snipers);
       Bitboard blockers = pieces() & betweenBB[ksq][ssq];
-      if (!more_than_one(blockers)) {
+      if (!more_than_one(blockers))
+      {
         state->pinners[c] |= ssq;
         state->blockers[c] |= pop_lsb(blockers);
       }
@@ -338,13 +382,15 @@ void Position::compute_pins() {
   }
 }
 
-bool Position::is_valid() const {
+bool Position::is_valid() const
+{
   assert(nbPiece[make_piece(WHITE, KING)] == 1);
   assert(nbPiece[make_piece(BLACK, KING)] == 1);
   assert(state->rule50 <= 100);
   assert(!(pieces(WHITE) & pieces(BLACK)));
   assert(pieces() == (pieces(WHITE) | pieces(BLACK)));
-  for (Square sq = SQ_A1; sq <= SQ_H8; ++sq) {
+  for (Square sq = SQ_A1; sq <= SQ_H8; ++sq)
+  {
     assert((~pieces() & sq) || piece(sq));
     if (piece(sq) != NO_PIECE)
       assert(sq == pieceList[pieceBySquare[sq]][index[sq]]);

@@ -5,16 +5,19 @@
 #include <algorithm>
 #include <iostream>
 
-void Thread::search() {
+void Thread::search()
+{
 
   Moves moves(&pos), moves_opponent;
   if (idx != 0)
     return;
   ValueMove m;
-  while ((m = moves.next_move())) {
+  while ((m = moves.next_move()))
+  {
     pos.do_move(m);
     moves_opponent.set_pos(&pos);
-    if (pos.in_check() && moves_opponent.size() == 0) {
+    if (pos.in_check() && moves_opponent.size() == 0)
+    {
       std::cout << Sync::lock << "bestmove "
                 << (MovePrint)(Move)(moves.size() == 0 ? NULL_MOVE
                                                        : m ? m : *moves.begin())

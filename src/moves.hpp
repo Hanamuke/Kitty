@@ -4,7 +4,8 @@
 #include "position.hpp"
 #include "types.hpp"
 
-class Moves {
+class Moves
+{
 public:
   Moves() { pos = nullptr; };
   Moves(const Position *const p) { set_pos(p); }
@@ -12,13 +13,15 @@ public:
   Moves(Moves &&) = default;
   Moves &operator=(Moves &&) = default;
 
-  void set_pos(const Position *const p) {
+  void set_pos(const Position *const p)
+  {
     pos = p;
     currentMove = moves;
     lastMove = pos->generate_moves(moves);
   }
 
-  Move next_move() {
+  Move next_move()
+  {
     return (currentMove != lastMove) ? *(currentMove++) : NO_MOVE;
   }
   int size() const { return lastMove - moves; }

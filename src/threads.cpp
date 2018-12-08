@@ -5,7 +5,8 @@
 
 ThreadPool Threads;
 
-void ThreadPool::init() {
+void ThreadPool::init()
+{
   if (threads.size() != 0)
     stop_search();
   Option &o = Options["Threads"];
@@ -18,16 +19,19 @@ void ThreadPool::init() {
     threads.emplace_back(i);
 }
 
-void ThreadPool::start_searching() {
+void ThreadPool::start_searching()
+{
   stop = false;
   threads[0].start_searching();
   return;
 }
 
-void Thread::idle() {
+void Thread::idle()
+{
   searching = false;
   cv.notify_one();
-  while (!Threads.terminate_thread) {
+  while (!Threads.terminate_thread)
+  {
     std::unique_lock<std::mutex> lk(m);
     cv.wait(lk,
             [this]() { return this->searching || Threads.terminate_thread; });
@@ -40,18 +44,22 @@ void Thread::idle() {
 
 // should not happen, but the compiler doesn't know it
 __attribute__((noreturn))
-Thread::Thread(Thread &&t __attribute__((unused))) noexcept {
+Thread::Thread(Thread &&t __attribute__((unused))) noexcept
+{
   exit(-1);
 }
 
-void Thread::wait_for_search_finished() {
-  if (searching) {
+void Thread::wait_for_search_finished()
+{
+  if (searching)
+  {
     std::unique_lock<std::mutex> lk(m);
     cv.wait(lk, [this]() { return !this->searching; });
   }
 }
 
-void Thread::start_searching() {
+void Thread::start_searching()
+{
   wait_for_search_finished();
   searching = true;
   cv.notify_one();
@@ -60,12 +68,15 @@ void Thread::start_searching() {
 Thread::Thread(int _idx)
     : pos(), std_thread{&Thread::idle, this}, searching(false), idx(_idx) {}
 
-Thread::~Thread() noexcept {
-  if (std_thread.joinable()) {
+Thread::~Thread() noexcept
+{
+  if (std_thread.joinable())
+  {
     std_thread.join();
   }
 }
-void ThreadPool::setPosition(Position &&pos) {
+void ThreadPool::setPosition(Position &&pos)
+{
   assert(threads.size() != 0);
   threads[0].wait_for_search_finished();
   threads[0].setPosition(std::forward<Position>(pos));

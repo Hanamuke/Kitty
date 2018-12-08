@@ -12,13 +12,20 @@ constexpr bool use_bmi2 = false;
 
 using Key = uint64_t;
 
-enum Color : int { WHITE, BLACK, NB_COLOR };
+enum Color : int
+{
+  WHITE,
+  BLACK,
+  NB_COLOR
+};
 constexpr Color operator!(Color c) { return Color((int)c ^ 1); }
-constexpr void operator^=(Color &c, int i __attribute__((unused))) {
+constexpr void operator^=(Color &c, int i __attribute__((unused)))
+{
   c = Color((int)c ^ 1);
 }
 
-enum PieceType {
+enum PieceType
+{
   NO_PIECE_TYPE,
   PAWN,
   KNIGHT,
@@ -31,7 +38,8 @@ enum PieceType {
 };
 const std::string pieceTypeStr = " pnbrqk.";
 
-enum Piece {
+enum Piece
+{
   NO_PIECE,
   W_PAWN,
   W_KNIGHT,
@@ -56,7 +64,8 @@ constexpr Piece make_piece(Color c, PieceType pt) { return Piece(c << 3 | pt); }
 
 using Bitboard = uint64_t;
 
-enum File {
+enum File
+{
   FILE_A,
   FILE_B,
   FILE_C,
@@ -67,7 +76,8 @@ enum File {
   FILE_H,
   NB_FILE
 };
-enum Rank {
+enum Rank
+{
   RANK_1,
   RANK_2,
   RANK_3,
@@ -79,7 +89,8 @@ enum Rank {
   NB_RANK
 };
 
-enum Diagonal {
+enum Diagonal
+{
   DIAG_1,
   DIAG_2,
   DIAG_3,
@@ -98,7 +109,8 @@ enum Diagonal {
   NB_DIAGONAL = 15
 };
 
-enum Square {
+enum Square
+{
   SQ_A1,
   SQ_B1,
   SQ_C1,
@@ -167,7 +179,8 @@ enum Square {
   NB_SQUARE = 64,
 };
 
-enum Direction {
+enum Direction
+{
   NORTH = 8,
   EAST = 1,
   WEST = -1,
@@ -183,11 +196,13 @@ constexpr Direction down(Color stm) { return Direction((2 * stm - 1) * NORTH); }
 constexpr File file_of(Square sq) { return File(sq & 7); }
 constexpr Rank rank_of(Square sq) { return Rank(sq >> 3); }
 constexpr Square make_square(File f, Rank r) { return Square(f + (r << 3)); }
-inline Square make_square(std::string const &str) {
+inline Square make_square(std::string const &str)
+{
   return make_square(File(str[0] - 'a'), Rank(str[1] - '1'));
 }
 
-enum Castling : unsigned {
+enum Castling : unsigned
+{
   NO_CASTLING,
   W_OO = 0b0001,
   W_OOO = 0b0010,
@@ -201,18 +216,18 @@ constexpr Square castlingRookMove[NB_CASTLING][2] = {
     {SQ_H1, SQ_F1}, {SQ_A1, SQ_D1}, {SQ_H8, SQ_F8}, {SQ_A8, SQ_D8}};
 
 constexpr unsigned castlingBySquare[NB_SQUARE] = {
-    W_OOO,        NO_CASTLING, NO_CASTLING, NO_CASTLING, W_OO | W_OOO,
-    NO_CASTLING,  NO_CASTLING, W_OO,        NO_CASTLING, NO_CASTLING,
-    NO_CASTLING,  NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
-    NO_CASTLING,  NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
-    NO_CASTLING,  NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
-    NO_CASTLING,  NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
-    NO_CASTLING,  NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
-    NO_CASTLING,  NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
-    NO_CASTLING,  NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
-    NO_CASTLING,  NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
-    NO_CASTLING,  NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
-    NO_CASTLING,  B_OOO,       NO_CASTLING, NO_CASTLING, NO_CASTLING,
+    W_OOO, NO_CASTLING, NO_CASTLING, NO_CASTLING, W_OO | W_OOO,
+    NO_CASTLING, NO_CASTLING, W_OO, NO_CASTLING, NO_CASTLING,
+    NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
+    NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
+    NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
+    NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
+    NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
+    NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
+    NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
+    NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
+    NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING, NO_CASTLING,
+    NO_CASTLING, B_OOO, NO_CASTLING, NO_CASTLING, NO_CASTLING,
     B_OO | B_OOO, NO_CASTLING, NO_CASTLING, B_OO};
 /*
     0-5 : from sq
@@ -221,26 +236,38 @@ constexpr unsigned castlingBySquare[NB_SQUARE] = {
     14-15 : movetype
     */
 using Move = uint16_t;
-enum SpecialMove : Move { NULL_MOVE, NO_MOVE = NULL_MOVE };
+enum SpecialMove : Move
+{
+  NULL_MOVE,
+  NO_MOVE = NULL_MOVE
+};
 
 // A structure made up of a value and a precision
 using Value = int16_t;
-enum Precision : uint16_t {
+enum Precision : uint16_t
+{
   MIN_PRECISION,
   MAX_PRECISION = (uint16_t)-1,
 };
 
-struct Estimate {
+struct Estimate
+{
   Value v;
   Precision p;
 };
 
-enum Phase : uint16_t { MID_GAME = 18000, END_GAME = 8000 };
+enum Phase : uint16_t
+{
+  MID_GAME = 18000,
+  END_GAME = 8000
+};
 
-struct Score {
+struct Score
+{
   Value mg;
   Value eg;
-  constexpr Value value(Value material) {
+  constexpr Value value(Value material)
+  {
     float phase = std::min(
         0.f,
         std::max(1.f, (float)(material - MID_GAME) / (END_GAME - MID_GAME)));
@@ -248,7 +275,8 @@ struct Score {
   }
 };
 
-struct ValueMove {
+struct ValueMove
+{
   ValueMove(Move move) : m(move), v(0) {}
   ValueMove() : m(NO_MOVE), v(0) {}
   operator Move &() { return m; }
@@ -256,7 +284,8 @@ struct ValueMove {
   uint16_t v;
 };
 
-enum MoveType {
+enum MoveType
+{
   NORMAL,
   EN_PASSANT = 1 << 14,
   PROMOTION = 1 << 15,
@@ -264,7 +293,8 @@ enum MoveType {
 };
 
 template <MoveType mt>
-constexpr Move make_move(Square from, Square to, PieceType pieceProm = KNIGHT) {
+constexpr Move make_move(Square from, Square to, PieceType pieceProm = KNIGHT)
+{
   return from | to << 6 | (pieceProm - KNIGHT) << 12 | mt;
 }
 constexpr Move cstl_move[NB_CASTLING] = {
@@ -274,17 +304,18 @@ constexpr Move cstl_move[NB_CASTLING] = {
 
 constexpr Square get_from(Move m) { return Square(m & 0x003f); }
 constexpr Square get_to(Move m) { return Square((m & 0x0fc0) >> 6); }
-constexpr PieceType get_prom(Move m) {
+constexpr PieceType get_prom(Move m)
+{
   return PieceType(((m & 0x3000) >> 12) + KNIGHT);
 }
 constexpr int get_castling(Move m) { return (m & 0x3000) >> 12; }
 constexpr int get_pawn_move(Move m) { return m & 0x3000; }
 constexpr MoveType get_move_type(Move m) { return MoveType(m & 0xc000); }
 
-#define OP_ON(T)                                                               \
-  inline T operator++(T &t) { return t = T(t + 1); }                           \
-  inline T operator--(T &t) { return t = T(t - 1); }                           \
-  inline T operator+=(T &t1, T t2) { return t1 = T(t1 + t2); }                 \
+#define OP_ON(T)                                               \
+  inline T operator++(T &t) { return t = T(t + 1); }           \
+  inline T operator--(T &t) { return t = T(t - 1); }           \
+  inline T operator+=(T &t1, T t2) { return t1 = T(t1 + t2); } \
   inline T operator+=(T &t1, int t2) { return t1 = T(t1 + t2); }
 OP_ON(Square)
 OP_ON(File)
@@ -292,52 +323,69 @@ OP_ON(Rank)
 OP_ON(Piece)
 OP_ON(Diagonal)
 #undef OP_ON
-inline Square operator+=(Square &sq, Direction d) {
+inline Square operator+=(Square &sq, Direction d)
+{
   return sq = Square(sq + d);
 }
-inline Square operator+(Square const &sq, Direction d) {
+inline Square operator+(Square const &sq, Direction d)
+{
   return Square(sq + (int)d);
 }
 
-inline Score operator*(int i, Score const &a) {
+inline Score operator*(int i, Score const &a)
+{
   return {Value(i * a.mg), Value(i * a.eg)};
 }
 
-inline void operator+=(Score &s, Score const &a) {
+inline void operator+=(Score &s, Score const &a)
+{
   s.mg += a.mg;
   s.eg += a.eg;
 }
 
-template <typename T> constexpr int distance(T t1, T t2) {
+template <typename T>
+constexpr int distance(T t1, T t2)
+{
   return (t1 >= t2) ? t1 - t2 : t2 - t1;
 }
-template <> constexpr int distance(Square sq1, Square sq2) {
+template <>
+constexpr int distance(Square sq1, Square sq2)
+{
   return sq1 >= sq2 ? (sq1 - sq2) % NB_RANK + (sq1 - sq2) / NB_FILE
                     : (sq2 - sq1) % NB_RANK + (sq2 - sq1) / NB_FILE;
 }
 
-inline std::ostream &operator<<(std::ostream &os, Color c) {
+inline std::ostream &operator<<(std::ostream &os, Color c)
+{
   return os << (c ? 'b' : 'w');
 }
 
-inline std::ostream &operator<<(std::ostream &os, File f) {
+inline std::ostream &operator<<(std::ostream &os, File f)
+{
   return os << static_cast<char>('a' + f);
 }
-inline std::ostream &operator<<(std::ostream &os, Rank r) {
+inline std::ostream &operator<<(std::ostream &os, Rank r)
+{
   return os << static_cast<char>('1' + r);
 }
-inline std::ostream &operator<<(std::ostream &os, Square sq) {
+inline std::ostream &operator<<(std::ostream &os, Square sq)
+{
   return os << file_of(sq) << rank_of(sq);
 }
-inline std::ostream &operator<<(std::ostream &os, Piece p) {
+inline std::ostream &operator<<(std::ostream &os, Piece p)
+{
   return os << pieceStr[p];
 }
-inline std::ostream &operator<<(std::ostream &os, PieceType pt) {
+inline std::ostream &operator<<(std::ostream &os, PieceType pt)
+{
   return os << pieceTypeStr[pt];
 }
 
-enum MovePrint {};
-inline std::ostream &operator<<(std::ostream &os, MovePrint m) {
+enum MovePrint
+{
+};
+inline std::ostream &operator<<(std::ostream &os, MovePrint m)
+{
   if (m == MovePrint(NULL_MOVE))
     return os << "0000";
   MoveType mt = get_move_type(m);
@@ -345,11 +393,18 @@ inline std::ostream &operator<<(std::ostream &os, MovePrint m) {
   return mt == PROMOTION ? os << get_prom(m) : os;
 }
 
-enum Depth : unsigned { MAX_PLY = 256 };
+enum Depth : unsigned
+{
+  MAX_PLY = 256
+};
 
 // Maximum number of legal moves in any position
 constexpr unsigned MAX_MOVES = 200;
 
-enum GenType { NON_EVASION, CAPTURES };
+enum GenType
+{
+  NON_EVASION,
+  CAPTURES
+};
 
 #endif

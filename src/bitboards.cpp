@@ -32,16 +32,20 @@ uint64_t rookMagicNumber[NB_SQUARE];
 
 void magic_init();
 
-void bitboard_init() {
-  for (File f = FILE_A; f <= FILE_H; ++f) {
+void bitboard_init()
+{
+  for (File f = FILE_A; f <= FILE_H; ++f)
+  {
     fileBB[f] = FILE_A_BB << (f * EAST);
     adjacentFilesBB[f] = shift<EAST>(fileBB[f]) | shift<WEST>(fileBB[f]);
   }
-  for (Rank r = RANK_1; r <= RANK_8; ++r) {
+  for (Rank r = RANK_1; r <= RANK_8; ++r)
+  {
     rankBB[r] = 0x00000000000000ffULL << (r * NORTH);
     adjacentRanksBB[r] = shift<NORTH>(rankBB[r]) | shift<SOUTH>(rankBB[r]);
   }
-  for (Square sq = SQ_A1; sq <= SQ_H8; ++sq) {
+  for (Square sq = SQ_A1; sq <= SQ_H8; ++sq)
+  {
     squareBB[sq] = 0x0000000000000001ULL << sq;
     ringBB[sq] = (adjacentFilesBB[file_of(sq)] | file_of(sq)) &
                  (adjacentRanksBB[rank_of(sq)] | rank_of(sq)) & ~sq;
@@ -54,22 +58,27 @@ void bitboard_init() {
         shift<SOUTH_EAST>(bb_of(sq)) | shift<SOUTH_WEST>(bb_of(sq));
   }
   for (Diagonal d = DIAG_1; d < NB_DIAGONAL; ++d)
-    for (Square sq = SQ_A1; sq <= SQ_H8; ++sq) {
+    for (Square sq = SQ_A1; sq <= SQ_H8; ++sq)
+    {
       if (file_of(sq) + rank_of(sq) == d)
         diagonalBB[d] |= squareBB[sq];
       if (7 + rank_of(sq) - file_of(sq) == d)
         antiDiagonalBB[d] |= sq;
     }
-  for (Square sq = SQ_A1; sq <= SQ_H8; ++sq) {
-    for (Square sq2 = sq + EAST; sq2 <= SQ_H8; ++sq2) {
+  for (Square sq = SQ_A1; sq <= SQ_H8; ++sq)
+  {
+    for (Square sq2 = sq + EAST; sq2 <= SQ_H8; ++sq2)
+    {
       if (file_of(sq) + rank_of(sq) == file_of(sq2) + rank_of(sq2) ||
-          file_of(sq) + rank_of(sq2) == file_of(sq2) + rank_of(sq)) {
+          file_of(sq) + rank_of(sq2) == file_of(sq2) + rank_of(sq))
+      {
         bishopPseudoAttacks[sq] |= sq2;
         bishopPseudoAttacks[sq2] |= sq;
       }
       if ((file_of(sq) - file_of(sq2)) * (file_of(sq) - file_of(sq2)) +
               (rank_of(sq) - rank_of(sq2)) * (rank_of(sq) - rank_of(sq2)) ==
-          5) {
+          5)
+      {
         knightPseudoAttacks[sq] |= sq2;
         knightPseudoAttacks[sq2] |= sq;
       }
@@ -84,7 +93,8 @@ void bitboard_init() {
       else if (rank_of(sq) == rank_of(sq2))
         lineBB[sq][sq2] = lineBB[sq2][sq] = rankBB[rank_of(sq)];
       for (Square sq3 = sq + EAST; sq3 < sq2; ++sq3)
-        if (lineBB[sq][sq2] & sq3) {
+        if (lineBB[sq][sq2] & sq3)
+        {
           betweenBB[sq][sq2] |= sq3;
           betweenBB[sq2][sq] |= sq3;
         }
@@ -94,11 +104,14 @@ void bitboard_init() {
   magic_init();
 }
 
-Bitboard bishop_attack(Square sq, Bitboard occupied) {
+Bitboard bishop_attack(Square sq, Bitboard occupied)
+{
   Bitboard ret{0};
-  for (Direction d : {NORTH_EAST, SOUTH_EAST, SOUTH_WEST, NORTH_WEST}) {
+  for (Direction d : {NORTH_EAST, SOUTH_EAST, SOUTH_WEST, NORTH_WEST})
+  {
     Bitboard tmp = bb_of(sq);
-    do {
+    do
+    {
       tmp = shift(tmp, d);
       ret |= tmp;
     } while (tmp && !(tmp & occupied));
@@ -106,11 +119,14 @@ Bitboard bishop_attack(Square sq, Bitboard occupied) {
   return ret;
 }
 
-Bitboard rook_attack(Square sq, Bitboard occupied) {
+Bitboard rook_attack(Square sq, Bitboard occupied)
+{
   Bitboard ret{0};
-  for (Direction d : {NORTH, EAST, SOUTH, WEST}) {
+  for (Direction d : {NORTH, EAST, SOUTH, WEST})
+  {
     Bitboard tmp = bb_of(sq);
-    do {
+    do
+    {
       tmp = shift(tmp, d);
       ret |= tmp;
     } while (tmp && !(tmp & occupied));
@@ -118,20 +134,25 @@ Bitboard rook_attack(Square sq, Bitboard occupied) {
   return ret;
 }
 
-void magic_init() {
-  for (Square sq = SQ_A1; sq <= SQ_H8; ++sq) {
+void magic_init()
+{
+  for (Square sq = SQ_A1; sq <= SQ_H8; ++sq)
+  {
     bishopMagicMask[sq] = bishopPseudoAttacks[sq] & ~borderBB;
     Bitboard input = bishopMagicMask[sq];
-    if (!use_bmi2) {
+    if (!use_bmi2)
+    {
       bishopMagicNumber[sq] = sparse_rand64();
       memset(bishopMagics[sq], 0, (1 << 9) * sizeof(**bishopMagics));
     }
-    while (true) {
+    while (true)
+    {
       uint64_t index = magic_index<BISHOP>(input, sq);
       if (use_bmi2 || !bishopMagics[sq][index] ||
           bishop_attack(sq, input) == bishopMagics[sq][index])
         bishopMagics[sq][index] = bishop_attack(sq, input);
-      else {
+      else
+      {
         // Effectively loops and tries another
         // magic number until there is no collision
         --sq;
@@ -142,7 +163,8 @@ void magic_init() {
       input = (input - 1) & bishopMagicMask[sq];
     }
   }
-  for (Square sq = SQ_A1; sq <= SQ_H8; ++sq) {
+  for (Square sq = SQ_A1; sq <= SQ_H8; ++sq)
+  {
     Bitboard mask = borderBB;
     mask &= file_of(sq) == FILE_A ? ~FILE_A_BB
                                   : file_of(sq) == FILE_H ? ~FILE_H_BB : ~0ULL;
@@ -153,16 +175,19 @@ void magic_init() {
     rookMagicMask[sq] = mask;
     Bitboard input = rookMagicMask[sq];
     ;
-    if (!use_bmi2) {
+    if (!use_bmi2)
+    {
       rookMagicNumber[sq] = sparse_rand64();
       memset(rookMagics[sq], 0, (1 << 12) * sizeof(**rookMagics));
     }
-    while (true) {
+    while (true)
+    {
       uint64_t index = magic_index<ROOK>(input, sq);
       if (use_bmi2 || !rookMagics[sq][index] ||
           rook_attack(sq, input) == rookMagics[sq][index])
         rookMagics[sq][index] = rook_attack(sq, input);
-      else {
+      else
+      {
         --sq;
         break;
       }
@@ -173,10 +198,13 @@ void magic_init() {
   }
 }
 
-std::string print_bb(Bitboard bb) {
+std::string print_bb(Bitboard bb)
+{
   std::string ret = "";
-  for (Rank r = RANK_8; r >= RANK_1; --r) {
-    for (File f = FILE_A; f <= FILE_H; ++f) {
+  for (Rank r = RANK_8; r >= RANK_1; --r)
+  {
+    for (File f = FILE_A; f <= FILE_H; ++f)
+    {
       ret += ' ';
       ret += std::to_string(!!(bb & f & r));
     }
@@ -185,8 +213,10 @@ std::string print_bb(Bitboard bb) {
   return ret;
 }
 
-Bitboard shift(Bitboard bb, Direction d) {
-  switch (d) {
+Bitboard shift(Bitboard bb, Direction d)
+{
+  switch (d)
+  {
   case NORTH:
     return bb << NORTH;
   case SOUTH:

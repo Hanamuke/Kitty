@@ -13,7 +13,8 @@ Key zobrist_castle[1 << NB_CASTLING];
 std::random_device rd;
 Gen gen;
 
-void zobrist_init() {
+void zobrist_init()
+{
   zobrist_stm = gen();
   for (Key &key : zobrist_castle)
     key = gen();
@@ -23,10 +24,12 @@ void zobrist_init() {
     for (Key &key : tab)
       key = gen();
 }
-namespace Perft {
+namespace Perft
+{
 HashTable<PerftEntry> hash;
 
-uint64_t perft_search(Position &pos, Depth depth) {
+uint64_t perft_search(Position &pos, Depth depth)
+{
   static Moves moves[10];
   bool hit;
   uint64_t nodes = 0;
@@ -38,12 +41,14 @@ uint64_t perft_search(Position &pos, Depth depth) {
   if (depth == 1)
     return moves[depth].size();
 
-  for (ValueMove m : moves[depth]) {
+  for (ValueMove m : moves[depth])
+  {
     pos.do_move(m);
     nodes += perft_search(pos, Depth(depth - 1));
     pos.undo_move();
   }
-  if (pe != nullptr) {
+  if (pe != nullptr)
+  {
     pe->key = pos.get_key();
     pe->perft = nodes;
     pe->depth = Depth(depth);
@@ -51,7 +56,8 @@ uint64_t perft_search(Position &pos, Depth depth) {
   return nodes;
 }
 
-void perft() {
+void perft()
+{
   constexpr size_t NB_POSITIONS = 19;
   static const std::string position[NB_POSITIONS] = {
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -77,23 +83,24 @@ void perft() {
                                        4, 4, 6, 5, 6, 6, 6, 7, 4};
   constexpr uint64_t solution[NB_POSITIONS] = {
       119060324, 193690690, 178633661, 706045033, 1063513, 1134888, 1015133,
-      1440467,   661072,    803711,    1274206,   1720476, 3821001, 1004658,
-      217342,    92683,     2217,      567584,    23527};
+      1440467, 661072, 803711, 1274206, 1720476, 3821001, 1004658,
+      217342, 92683, 2217, 567584, 23527};
   Position pos;
   auto t0 = std::chrono::system_clock::now();
   uint64_t total_nodes = 0;
   hash.resize(16);
-  for (size_t i = 0; i < NB_POSITIONS; i++) {
+  for (size_t i = 0; i < NB_POSITIONS; i++)
+  {
     std::cout << Sync::lock << "Position " << i + 1 << '/' << NB_POSITIONS
               << '\n'
               << Sync::unlock;
     pos.set_position(position[i]);
     Moves moves(&pos);
     uint64_t nodes = 0;
-    for (ValueMove m : moves) {
+    for (ValueMove m : moves)
+    {
       pos.do_move(m);
       uint64_t temp_nodes = perft_search(pos, Depth(depth[i] - 1));
-      // std::cout << (MovePrint)(Move)m << " : " << temp_nodes << '\n';
       nodes += temp_nodes;
       pos.undo_move();
     }

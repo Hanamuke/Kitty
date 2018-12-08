@@ -16,8 +16,13 @@ constexpr char startfen[] =
 // Synchronises outputs
 // EX : std::cout << Sync::lock << "message" << Sync::unlock;
 
-enum class Sync { lock, unlock };
-inline std::ostream &operator<<(std::ostream &os, Sync s) {
+enum class Sync
+{
+  lock,
+  unlock
+};
+inline std::ostream &operator<<(std::ostream &os, Sync s)
+{
   static std::mutex m;
   if (s == Sync::lock)
     m.lock();
@@ -27,8 +32,10 @@ inline std::ostream &operator<<(std::ostream &os, Sync s) {
 }
 
 extern std::random_device rd;
-struct Gen {
-  uint64_t operator()() {
+struct Gen
+{
+  uint64_t operator()()
+  {
     uint64_t x = state; /* The state must be seeded with a nonzero value. */
     x ^= x >> 12;       // a
     x ^= x << 25;       // b
@@ -52,7 +59,8 @@ extern Key zobrist_castle[1 << NB_CASTLING];
 
 void zobrist_init();
 
-namespace Perft {
+namespace Perft
+{
 void perft();
 }
 

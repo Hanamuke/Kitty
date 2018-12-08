@@ -9,7 +9,8 @@
 #include <string>
 #include <vector>
 
-struct StateInfo {
+struct StateInfo
+{
   int castlingRights;
   int rule50;
 
@@ -22,7 +23,8 @@ struct StateInfo {
   Move move;
 };
 
-class Position {
+class Position
+{
 public:
   Position();
   Position(Position &&) = default;
@@ -37,8 +39,10 @@ public:
   void do_null_move();
   void undo_null_move();
 
-  template <PieceType pt> Bitboard attacks_from(Square sq) const;
-  template <PieceType pt> Bitboard attacks_from(Square sq, Color c) const;
+  template <PieceType pt>
+  Bitboard attacks_from(Square sq) const;
+  template <PieceType pt>
+  Bitboard attacks_from(Square sq, Color c) const;
   Bitboard attacks_to(Square sq) const;
 
   Bitboard pieces() const;
@@ -100,19 +104,23 @@ private:
 
 inline Bitboard Position::pieces() const { return bbByPieceType[ALL_PIECE]; }
 
-inline Bitboard Position::pieces(Piece p) const {
+inline Bitboard Position::pieces(Piece p) const
+{
   return bbByPieceType[piece_type_of(p)] & bbByColor[color_of(p)];
 }
 
-inline Bitboard Position::pieces(PieceType pt) const {
+inline Bitboard Position::pieces(PieceType pt) const
+{
   return bbByPieceType[pt];
 }
 
-inline Bitboard Position::pieces(PieceType pt1, PieceType pt2) const {
+inline Bitboard Position::pieces(PieceType pt1, PieceType pt2) const
+{
   return bbByPieceType[pt1] | bbByPieceType[pt2];
 }
 
-inline Bitboard Position::pieces(PieceType pt, Color c) const {
+inline Bitboard Position::pieces(PieceType pt, Color c) const
+{
   return bbByPieceType[pt] & bbByColor[c];
 }
 
@@ -120,20 +128,24 @@ inline Bitboard Position::pieces(Color c) const { return bbByColor[c]; }
 
 inline Piece Position::piece(Square sq) const { return pieceBySquare[sq]; }
 
-inline Square Position::our_king() const {
+inline Square Position::our_king() const
+{
   return pieceList[make_piece(stm, KING)][0];
 }
 
-inline Square Position::their_king() const {
+inline Square Position::their_king() const
+{
   return pieceList[make_piece(!stm, KING)][0];
 }
 
-inline bool Position::is_pinned(Square sq) const {
+inline bool Position::is_pinned(Square sq) const
+{
   return state->blockers[stm] & sq;
 }
 
 template <PieceType pt>
-inline Bitboard Position::attacks_from(Square sq) const {
+inline Bitboard Position::attacks_from(Square sq) const
+{
   assert(pt != PAWN);
   if (pt == BISHOP)
     return bishopMagics[sq][magic_index<BISHOP>(pieces(), sq)];
@@ -147,11 +159,13 @@ inline Bitboard Position::attacks_from(Square sq) const {
   return knightPseudoAttacks[sq];
 }
 template <>
-inline Bitboard Position::attacks_from<PAWN>(Square sq, Color us) const {
+inline Bitboard Position::attacks_from<PAWN>(Square sq, Color us) const
+{
   return (pawnPseudoAttack[sq][us] & pieces());
 }
 
-inline Bitboard Position::attacks_to(Square sq) const {
+inline Bitboard Position::attacks_to(Square sq) const
+{
   return (attacks_from<BISHOP>(sq) & pieces(BISHOP, QUEEN)) |
          (attacks_from<ROOK>(sq) & pieces(ROOK, QUEEN)) |
          (attacks_from<KNIGHT>(sq) & pieces(KNIGHT)) |
@@ -162,7 +176,8 @@ inline Bitboard Position::attacks_to(Square sq) const {
 
 inline bool Position::in_check() const { return state->checkers; }
 
-inline void Position::rebase_stack() {
+inline void Position::rebase_stack()
+{
   size_t rebaseSize = state->rule50;
   StateInfo *curr = state - rebaseSize;
   // memcpy would be undefined behaviour since source and destination overlap

@@ -11,7 +11,8 @@
 
 using Callback = void (*)();
 void no_callback();
-class Option {
+class Option
+{
 public:
   Option() = delete;
   Option(Option &&) = delete;
@@ -30,13 +31,15 @@ public:
   bool setValue(int);
 
   // getters
-  operator int() const {
+  operator int() const
+  {
     assert(type == "spin" || type == "check");
     if (type == "check")
       return !!int_value;
     return int_value;
   }
-  operator std::string() const {
+  operator std::string() const
+  {
     assert(type != "button");
     if (type == "spin" || type == "check")
       return std::to_string(int_value);
@@ -51,17 +54,20 @@ private:
   std::set<std::string> combo_values;
 };
 
-class OptionManager {
+class OptionManager
+{
 public:
   OptionManager();
   OptionManager(OptionManager &&) = delete;
   friend std::ostream &operator<<(std::ostream &, OptionManager const &);
   template <typename... Args>
-  void newOption(std::string const &name, Args &&... args) noexcept {
+  void newOption(std::string const &name, Args &&... args) noexcept
+  {
     optionsMap.emplace(std::piecewise_construct, std::forward_as_tuple(name),
                        std::forward_as_tuple(args...));
   }
-  inline Option &operator[](std::string const &s) {
+  inline Option &operator[](std::string const &s)
+  {
     assert(optionsMap.count(s));
     return optionsMap.at(s);
   }
@@ -69,8 +75,10 @@ public:
 
 private:
   // UCI specifies that option names should be case insensitive
-  struct CompareCaseInsensitive {
-    bool operator()(std::string const &a, std::string const &b) const {
+  struct CompareCaseInsensitive
+  {
+    bool operator()(std::string const &a, std::string const &b) const
+    {
       return std::lexicographical_compare(
           a.cbegin(), a.cend(), b.cbegin(), b.cend(),
           [](char c1, char c2) { return tolower(c1) < tolower(c2); });

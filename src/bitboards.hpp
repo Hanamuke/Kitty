@@ -49,7 +49,9 @@ extern Bitboard rookMagics[NB_SQUARE][1 << 12];
 extern uint64_t bishopMagicNumber[NB_SQUARE];
 extern uint64_t rookMagicNumber[NB_SQUARE];
 
-template <PieceType pt> inline uint64_t magic_index(Bitboard input, Square sq) {
+template <PieceType pt>
+inline uint64_t magic_index(Bitboard input, Square sq)
+{
   static_assert(pt == BISHOP || pt == ROOK,
                 " Attempt to use Magics on wrong piece");
   Bitboard mask = pt == BISHOP ? bishopMagicMask[sq] : rookMagicMask[sq];
@@ -63,8 +65,11 @@ template <PieceType pt> inline uint64_t magic_index(Bitboard input, Square sq) {
 
 Bitboard shift(Bitboard bb, Direction d);
 
-template <Direction d> inline Bitboard shift(Bitboard bb) {
-  switch (d) {
+template <Direction d>
+inline Bitboard shift(Bitboard bb)
+{
+  switch (d)
+  {
   case NORTH:
     return bb << NORTH;
   case SOUTH:
@@ -85,7 +90,8 @@ template <Direction d> inline Bitboard shift(Bitboard bb) {
   }
 }
 
-inline Square pop_lsb(Bitboard &b) {
+inline Square pop_lsb(Bitboard &b)
+{
   Square sq = Square(ctz(b));
   b &= b - 1;
   return sq;
