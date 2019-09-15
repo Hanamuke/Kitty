@@ -78,7 +78,7 @@ private:
   size_t tableSize;
 };
 
-class PerftEntry
+struct PerftEntry
 {
   Key key;
   uint64_t perft;

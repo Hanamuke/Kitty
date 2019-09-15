@@ -13,6 +13,7 @@ void engine_init();
 namespace UCI
 {
 std::string engine_info();
+int bench();
 void position(std::istream &);
 void set_option(std::istream &is);
 void go();
@@ -52,6 +53,9 @@ int main(int argc, char **argv)
       Threads.reset();
     else if (token == "position")
       UCI::position(is);
+    else if (token == "bench")
+      std::cout << Sync::lock << UCI::bench() << '\n'
+                << Sync::unlock;
     else if (token == "go")
       UCI::go();
     else if (token == "debug")
@@ -88,7 +92,7 @@ int main(int argc, char **argv)
 namespace UCI
 {
 std::string engine_info() { return "id name Kitty\nid author Loli\n"; }
-
+int bench() { return 0; }
 void position(std::istream &is)
 {
   std::string cmd, fen, move;
