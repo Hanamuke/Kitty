@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 namespace UCI
 {
 std::string engine_info() { return "id name Kitty\nid author Loli\n"; }
-std::string bench() { return "Time : 1000\nNodes : 2000000\nNPS : 2000000\n"; }
+std::string bench() { return "info nodes 2000000 time 1000 nps 2000000 cp 0\nTime : 1000ms\nNodes : 2000000\nNPS : 2000000\n"; }
 void position(std::istream &is)
 {
   std::string cmd, fen, move;
